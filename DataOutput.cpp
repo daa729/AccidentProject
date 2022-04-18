@@ -16,9 +16,7 @@ int main()
     getline(file, line);
     if (file.is_open()) {
         while (getline(file, line)) {
-            getline(file, line);
             lines.push_back(line);
-            cout << lines.size() << endl;
             vector<double> locs;
             vector<string> dataToInsert;
             string sev;
