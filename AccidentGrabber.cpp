@@ -53,7 +53,7 @@ MaxHeap::MaxHeap(double lat, double longi) {
 void MaxHeap::Insert(Accident x) {
     x.distance = sqrt(pow(x.latitude - Latitude, 2.0) + pow(x.longitude - Longitude, 2.0));
     size++;
-    if (size == capacity / 2) {
+    if (size >= capacity / 2) {
         Accident* newHeap = new Accident[capacity * 2];
         for (int i = 0; i < size; i++) {
             newHeap[i] = heap[i - Findex];
