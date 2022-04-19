@@ -54,7 +54,8 @@ void MaxHeap::Insert(Accident x) {
     x.distance = sqrt(pow(x.latitude - Latitude, 2.0) + pow(x.longitude - Longitude, 2.0));
     size++;
     if (size >= capacity / 2) {
-        Accident* newHeap = new Accident[capacity * 2];
+        capacity = capacity*2; 
+        Accident* newHeap = new Accident[capacity];
         for (int i = 0; i < size; i++) {
             newHeap[i] = heap[i - Findex];
         }
@@ -75,7 +76,12 @@ void MaxHeap::Heapify() {
 }
 
 void MaxHeap::MaxPop() {
-    
+    cout<<endl;
+    for(int i =0; i<size; i++){
+    cout << heap[i].latitude << "," << heap[i].longitude << "," << heap[i].severity << endl;
+      
+    }
+    cout<<endl;
     //Accident temp = heap[0]; this was for when returning the value
     if(size>2){
     if (heap[1].distance > heap[2].distance) {
