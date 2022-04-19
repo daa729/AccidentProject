@@ -28,16 +28,18 @@ struct Accident {
 };
 
 class MaxHeap {
+    int temporary =0; 
     int Findex = 0;
     double Latitude = 0;
     double Longitude = 0;
     int capacity = 5;
-    Accident* heap = new Accident[5];
+    
     void Heapify();
     int parent(int i) { return ((i - 1) / 2); }
     int right(int i) { return (2 * i + 2); }
     int left(int i) { return (2 * i + 1); }
 public:
+    Accident* heap = new Accident[5];
     int size = 0;
     void Insert(Accident x);
     MaxHeap(double lat, double longi);
@@ -75,13 +77,8 @@ void MaxHeap::Heapify() {
     }
 }
 
-void MaxHeap::MaxPop() {
-    cout<<endl;
-    for(int i =0; i<size; i++){
-    cout << heap[i].latitude << "," << heap[i].longitude << "," << heap[i].severity << endl;
-      
-    }
-    cout<<endl;
+void MaxHeap::MaxPop() {\
+
     //Accident temp = heap[0]; this was for when returning the value
     if(size>2){
     if (heap[1].distance > heap[2].distance) {
@@ -106,6 +103,7 @@ void MaxHeap::MaxPop() {
                 i = size;
             }
             else {
+                heap[size-1]=Accident(); 
                 i = size;
             }
         }
@@ -133,6 +131,7 @@ void MaxHeap::MaxPop() {
                 i = size;
             }
             else {
+                heap[size-1]=Accident(); 
                 i = size;
             }
         }
@@ -182,6 +181,12 @@ int main()//int argc, char* argv[]
     time_t ftr = time(NULL);
     cout << "Time taken to load file: " << ftr - itr << " seconds." << endl;
     stack<Accident> sa;
+     cout<<endl;
+    for(int i =0; i<count; i++){
+    cout << mh.heap[i].latitude << "," << mh.heap[i].longitude << "," << mh.heap[i].severity << endl;
+      
+    }
+    cout<<endl;
     for (int i = 0; i < count; i++) {
         sa.push(mh.MaxTop());
         mh.MaxPop();
