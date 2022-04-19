@@ -37,11 +37,19 @@
       #info:hover{
         cursor: help;
       }
+      #numOfValues{
+	position: absolute;
+	top: 1.5%;
+	left: 5%;
+	text-align: center;
+	width: 5%;
+      }
     </style>
   </head>
   <body>
     <h1 id="title" onclick="promptInput()">Pick a point to view nearby accidents</h1>
     <div id="info" title="Rigth click on the map to find accidents around that point. You can also click the title to specify a longitude and latitude.">&#128712;</div>
+    <input type="number" id="numOfValues" value=1000 min=1 max=2845342>
     <div id="map"></div>
 
     <script>
@@ -115,7 +123,8 @@
         changeTitle(lat, long);
 
         //Actually fetching the data from the webserver, using it to update heatmap
-        fetch('getData.php?lat='+lat+'&long='+long)
+	let amount = document.getElementById("numOfValues").value;
+        fetch('getData.php?lat='+lat+'&long='+long+"&amount="+amount)
           .then(response => response.text())
           .then(data => updateHeatmap(data));
       }
