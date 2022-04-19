@@ -28,18 +28,16 @@ struct Accident {
 };
 
 class MaxHeap {
-    int temporary =0; 
     int Findex = 0;
     double Latitude = 0;
     double Longitude = 0;
     int capacity = 5;
-    
+    Accident* heap = new Accident[5];
     void Heapify();
     int parent(int i) { return ((i - 1) / 2); }
     int right(int i) { return (2 * i + 2); }
     int left(int i) { return (2 * i + 1); }
 public:
-    Accident* heap = new Accident[5];
     int size = 0;
     void Insert(Accident x);
     MaxHeap(double lat, double longi);
@@ -56,7 +54,7 @@ void MaxHeap::Insert(Accident x) {
     x.distance = sqrt(pow(x.latitude - Latitude, 2.0) + pow(x.longitude - Longitude, 2.0));
     size++;
     if (size >= capacity / 2) {
-        capacity = capacity*2; 
+        capacity = capacity * 2;
         Accident* newHeap = new Accident[capacity];
         for (int i = 0; i < size; i++) {
             newHeap[i] = heap[i - Findex];
@@ -77,70 +75,69 @@ void MaxHeap::Heapify() {
     }
 }
 
-void MaxHeap::MaxPop() {\
-
+void MaxHeap::MaxPop() {
     //Accident temp = heap[0]; this was for when returning the value
-    if(size>2){
-    if (heap[1].distance > heap[2].distance) {
-        heap[0] = heap[1];
-        for (int i = 1; i < size;) {
-            if (right(i) < size && left(i) < size) {
-                if (heap[left(i)].distance < heap[right(i)].distance) {
+    if (size > 2) {
+        if (heap[1].distance > heap[2].distance) {
+            heap[0] = heap[1];
+            for (int i = 1; i < size;) {
+                if (right(i) < size && left(i) < size) {
+                    if (heap[left(i)].distance < heap[right(i)].distance) {
+                        heap[i] = heap[right(i)];
+                        i = right(i);
+                    }
+                    else {
+                        heap[i] = heap[left(i)];
+                        i = left(i);
+                    }
+                }
+                else if (right(i) < size) {
                     heap[i] = heap[right(i)];
-                    i = right(i);
+                    i = size;
+                }
+                else if (left(i) < size) {
+                    heap[i] = heap[left(i)];
+                    i = size;
                 }
                 else {
-                    heap[i] = heap[left(i)];
-                    i = left(i);
+                    i = size;
                 }
             }
-            else if (right(i) < size) {
-                heap[i] = heap[right(i)];
-                i = size;
-            }
-            else if (left(i) < size) {
-                heap[i] = heap[left(i)];
-                i = size;
-            }
-            else {
-                heap[size-1]=Accident(); 
-                i = size;
+
+        }
+        else {
+            heap[0] = heap[2];
+            for (int i = 2; i < size;) {
+                if (right(i) < size && left(i) < size) {
+                    if (heap[left(i)].distance < heap[right(i)].distance) {
+                        heap[i] = heap[right(i)];
+                        i = right(i);
+                    }
+                    else {
+                        heap[i] = heap[left(i)];
+                        i = left(i);
+                    }
+                }
+                else if (right(i) < size) {
+                    heap[i] = heap[right(i)];
+                    i = size;
+                }
+                else if (left(i) < size) {
+                    heap[i] = heap[left(i)];
+                    i = size;
+                }
+                else {
+                    i = size;
+                }
             }
         }
+    }
+    else if (size > 1) {
+        heap[0] = heap[1];
 
     }
     else {
-        heap[0] = heap[2];
-        for (int i = 2; i < size;) {
-            if (right(i) < size && left(i) < size) {
-                if (heap[left(i)].distance < heap[right(i)].distance) {
-                    heap[i] = heap[right(i)];
-                    i = right(i);
-                }
-                else {
-                    heap[i] = heap[left(i)];
-                    i = left(i);
-                }
-            }
-            else if (right(i) < size) {
-                heap[i] = heap[right(i)];
-                i = size;
-            }
-            else if (left(i) < size) {
-                heap[i] = heap[left(i)];
-                i = size;
-            }
-            else {
-                heap[size-1]=Accident(); 
-                i = size;
-            }
-        }
-    }
-    }else if (size>1){
-        heap[0] = heap[1]; 
-
-    }else{
-         // zero values in heap will overwrite at 0
+        // zero values in heap will overwrite at 0
     }
     size--;
 }
@@ -160,7 +157,6 @@ int main()//int argc, char* argv[]
     MaxHeap mh(lati, loni);
     time_t itr = time(NULL);
     if (file.is_open()) {
-        cout << "file opened" << endl;
         while (getline(file, line)) {
             double latf = stod(line.substr(0, line.find(',')));
             line = line.substr(line.find(',') + 1);
@@ -168,25 +164,19 @@ int main()//int argc, char* argv[]
             line = line.substr(line.find(',') + 1);
             int sev = stoi(line.substr(0, line.find(',')));
             double dist = sqrt(pow(latf - lati, 2) + pow(lonf - loni, 2));
-            if (mh.size <= count)
+            if (mh.size <= count) {
                 mh.Insert(Accident(latf, lonf, sev));
+            }
             else if (dist < mh.MaxTop().distance) {
                 mh.MaxPop();
                 mh.Insert(Accident(latf, lonf, sev));
             }
         }
-        cout << "file closed" << endl;
         file.close();
     }
     time_t ftr = time(NULL);
     cout << "Time taken to load file: " << ftr - itr << " seconds." << endl;
     stack<Accident> sa;
-     cout<<endl;
-    for(int i =0; i<count; i++){
-    cout << mh.heap[i].latitude << "," << mh.heap[i].longitude << "," << mh.heap[i].severity << endl;
-      
-    }
-    cout<<endl;
     for (int i = 0; i < count; i++) {
         sa.push(mh.MaxTop());
         mh.MaxPop();
