@@ -66,8 +66,50 @@ void MinHeap::Heapify(){
 }
 
 accident MinHeap::MinPop(){
-    size--; 
-    accident temp = heap[Findex];
-    Findex++;
+    accident temp = heap[0]; 
+    if(heap[1].distance<heap[2].distance){
+        heap[0] = heap[1];
+        for(int i=1; i <size;){
+            if(right(i)<size && left(i)<size){
+            if(heap[left(i)].distance>heap[right(i)].distance){
+                heap[i]=heap[right(i)];
+                i=right(i);
+            }else{
+                heap[i]=heap[left(i)];
+                 i=left(i);
+            }
+            }else if(right(i)<size){
+                heap[i]=heap[right(i)];
+                 i=size; 
+            }else if (left(i)<size){
+                heap[i]=heap[left(i)];
+                 i=size; 
+            }else {
+                i=size; 
+            }
+        }
+
+    }else{
+        heap[0] = heap[2];
+        for(int i=2;i<size;){
+            if(right(i)<size && left(i)<size){
+                 if(heap[left(i)].distance>heap[right(i)].distance){
+                heap[i]=heap[right(i)];
+                i=right(i);
+            }   else{
+                heap[i]=heap[left(i)];
+                 i=left(i);
+            }
+            }else if(right(i)<size){
+                heap[i]=heap[right(i)];
+                 i=size; 
+            }else if (left(i)<size){
+                heap[i]=heap[left(i)];
+                 i=size; 
+            }else {
+                i=size; 
+            }
+        }
+    }
     return temp;
 }
