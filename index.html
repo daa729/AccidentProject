@@ -1,0 +1,147 @@
+<html>
+  <head>
+    <style>
+      body{
+        background-color: #242424;
+        overflow: hidden;
+      }
+      #map{
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          height: 90%;
+          width: 90%;
+          transform: translate(-50%, -50%);
+          border: 1px solid white;
+      }
+      #title{
+        font-family: Arial, Helvetica, sans-serif;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%);
+        font-size: 22px;
+        letter-spacing: 1px;
+        color: white;
+      }
+      #title:hover{
+        cursor: pointer;
+      }
+      #info{
+        position: absolute;
+        top: 0.5%;
+        right: 5%;
+        font-size: 30px;
+        color: white;
+      }
+      #info:hover{
+        cursor: help;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title" onclick="promptInput()">Pick a point to view nearby accidents</h1>
+    <div id="info" title="Rigth click on the map to find accidents around that point. You can also click the title to specify a longitude and latitude.">&#128712;</div>
+    <div id="map"></div>
+
+    <script>
+      //Listen for data file being input and save them as these global variables
+      /* Global Vars */
+      var heatmapData = [];
+      var centerLocation = {lat: 29.6436, lng: -82.3549};
+      var map;
+      var heatmap;
+      var loading;
+
+      //Draws the map initially
+      function initMap(){
+        /* Tweakable vars */
+        var zoom = 18;
+
+        /* Create map object */
+        var location = new google.maps.LatLng(29.6436, -82.3549);
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: centerLocation,
+          zoom: zoom,
+          mapTypeId: google.maps.MapTypeId.HYBRID
+        });
+
+        /* Listen for a right click to change center */
+        map.addListener("rightclick", (mapsMouseEvent) => {
+          latLngData = mapsMouseEvent.latLng.toJSON();
+          updateMap(latLngData.lat, latLngData.lng);
+        });
+      }
+
+      //Change the title a lot so
+      function changeTitle(lat, long){
+        let firstPart = "";
+        if(loading){
+          firstPart = "Loading accidents near ";
+        }
+        else{
+          firstPart = "Accidents near ";
+        }
+        document.getElementById("title").innerText = firstPart + parseFloat(lat).toFixed(4) + "," + parseFloat(long).toFixed(4);
+      }
+      /* Prompt user for latitude and longitude */
+      function promptInput(){
+        let latitude = prompt("Enter latitide:");
+        if(!latitude || isNaN(latitude)){
+          alert("Input error, please try again");
+          return;
+        }
+        let longitude = prompt("Enter longitude:")
+        if(!longitude || isNaN(longitude)){
+          alert("Input error, please try again");
+          return;
+        }
+        updateMap(latitude, longitude);
+      }
+      /* Function to pan the map and update heatmap based on user input */
+      function updateMap(lat, long){
+        if(loading){
+          alert("Still loading, please wait");
+          return;
+        }
+        if(heatmap){
+          heatmap.setMap(null);
+        }
+        loading = true;
+        lat = parseFloat(lat);
+        long = parseFloat(long);
+        centerLocation = {lat: lat, lng: long};
+        map.panTo(centerLocation);
+        changeTitle(lat, long);
+
+        //Actually fetching the data from the webserver, using it to update heatmap
+        fetch('getData.php?lat='+lat+'&long='+long)
+          .then(response => response.text())
+          .then(data => updateHeatmap(data));
+      }
+      /* Function to update heatmap, receives php request */
+      function updateHeatmap(data){
+        data = data.split("\n");
+        heatmapData = [];
+
+        //Parsing data from response
+        for(let i = 0; i < data.length; i++){
+          if(data[i]){
+            let curr = data[i].split(",");
+            heatmapData.push({location: new google.maps.LatLng(parseFloat(curr[0]), parseFloat(curr[1])), weight: parseFloat(curr[2])});
+          }
+        }
+
+        // Add heatmap layer to map
+        heatmap = new google.maps.visualization.HeatmapLayer({
+          data: heatmapData
+        });
+        heatmap.setMap(map);
+
+        loading = false;
+        changeTitle(centerLocation.lat, centerLocation.lng);
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDc37gppubHOHVUWU5vOVB5PCajrGafT3Y&libraries=visualization&callback=initMap"></script>
+  </body>
+</html>

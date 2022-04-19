@@ -33,7 +33,7 @@ class MaxHeap {
     double Longitude = 0;
     int capacity = 5;
     Accident* heap = new Accident[5];
-    void Heapify();
+    void Heapify(int i);
     int parent(int i) { return ((i - 1) / 2); }
     int right(int i) { return (2 * i + 2); }
     int left(int i) { return (2 * i + 1); }
@@ -43,6 +43,7 @@ public:
     MaxHeap(double lat, double longi);
     void MaxPop();
     Accident MaxTop();
+    void Print();
 };
 
 MaxHeap::MaxHeap(double lat, double longi) {
@@ -62,98 +63,69 @@ void MaxHeap::Insert(Accident x) {
         delete heap;
         heap = newHeap;
     }
-    heap[size - 1] = x;
-    Heapify();
-}
-void MaxHeap::Heapify() {
+
     int i = size - 1;
-    while ((i > 0) && (heap[parent(i)].distance < heap[i].distance)) {
-        Accident temp = heap[parent(i)];
-        heap[parent(i)] = heap[i];
-        heap[i] = temp;
-        i = parent(i);
+    heap[i] = x;
+    while (i != 0 && heap[parent(i)].distance < heap[i].distance){
+	Accident temp = heap[i];
+	heap[i] = heap[parent(i)];
+	heap[parent(i)] = temp;
+	i = parent(i);
     }
+}
+void MaxHeap::Heapify(int i) {
+    int l = left(i);
+    int r = right(i);
+    int smallest = i;
+    if (l < size && heap[l].distance > heap[i].distance)
+	smallest = l;
+    if (r < size && heap[r].distance > heap[smallest].distance)
+	smallest = r;
+    if (smallest != i)
+    {
+	Accident temp = heap[i];
+	heap[i] = heap[smallest];
+	heap[smallest] = temp;
+	Heapify(smallest);
+    }	    
 }
 
 void MaxHeap::MaxPop() {
     //Accident temp = heap[0]; this was for when returning the value
-    if (size > 2) {
-        if (heap[1].distance > heap[2].distance) {
-            heap[0] = heap[1];
-            for (int i = 1; i < size;) {
-                if (right(i) < size && left(i) < size) {
-                    if (heap[left(i)].distance < heap[right(i)].distance) {
-                        heap[i] = heap[right(i)];
-                        i = right(i);
-                    }
-                    else {
-                        heap[i] = heap[left(i)];
-                        i = left(i);
-                    }
-                }
-                else if (right(i) < size) {
-                    heap[i] = heap[right(i)];
-                    i = size;
-                }
-                else if (left(i) < size) {
-                    heap[i] = heap[left(i)];
-                    i = size;
-                }
-                else {
-                    i = size;
-                }
-            }
+    if(size <= 0){
+	return;
+    }
+    if(size == 1){
+	size--;
+	heap[0] = heap[1];
+	return;
+    }
 
-        }
-        else {
-            heap[0] = heap[2];
-            for (int i = 2; i < size;) {
-                if (right(i) < size && left(i) < size) {
-                    if (heap[left(i)].distance < heap[right(i)].distance) {
-                        heap[i] = heap[right(i)];
-                        i = right(i);
-                    }
-                    else {
-                        heap[i] = heap[left(i)];
-                        i = left(i);
-                    }
-                }
-                else if (right(i) < size) {
-                    heap[i] = heap[right(i)];
-                    i = size;
-                }
-                else if (left(i) < size) {
-                    heap[i] = heap[left(i)];
-                    i = size;
-                }
-                else {
-                    i = size;
-                }
-            }
-        }
-    }
-    else if (size > 1) {
-        heap[0] = heap[1];
-
-    }
-    else {
-        // zero values in heap will overwrite at 0
-    }
+    Accident root = heap[0];
+    heap[0] = heap[size - 1];
     size--;
+    Heapify(0);
 }
-
 Accident MaxHeap::MaxTop() {
     return heap[0];
 }
+void MaxHeap::Print(){
+    cout << "[ ";
+    for(int i = 0; i < size; i++){
+	Accident curr = heap[i];
+	cout << curr.latitude << ":" << curr.distance << " ";
+    }
+    cout << "]" << endl;
+}
 
-int main()//int argc, char* argv[]
+int main(int argc, char* argv[])
 {
     fstream file;
-    file.open("dataOut.csv");
+    file.open("dataOut.csv", fstream::in);
     string line = "";
-    double lati = 40.110485;//stod(argv[1]);
-    double loni = -83.062365;//stod(argv[2]);
-    int count = 10;//stoi(argv[3]);
+    double lati = stod(argv[1]);
+    double loni = stod(argv[2]);
+    int count = stoi(argv[3]);
     MaxHeap mh(lati, loni);
     time_t itr = time(NULL);
     if (file.is_open()) {
@@ -168,14 +140,14 @@ int main()//int argc, char* argv[]
                 mh.Insert(Accident(latf, lonf, sev));
             }
             else if (dist < mh.MaxTop().distance) {
-                mh.MaxPop();
+		mh.MaxPop();
                 mh.Insert(Accident(latf, lonf, sev));
             }
         }
         file.close();
     }
     time_t ftr = time(NULL);
-    cout << "Time taken to load file: " << ftr - itr << " seconds." << endl;
+    //cout << "Time taken to load file: " << ftr - itr << " seconds." << endl;
     stack<Accident> sa;
     for (int i = 0; i < count; i++) {
         sa.push(mh.MaxTop());
