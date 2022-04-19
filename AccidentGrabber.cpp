@@ -75,7 +75,9 @@ void MaxHeap::Heapify() {
 }
 
 void MaxHeap::MaxPop() {
-    Accident temp = heap[0];
+    
+    //Accident temp = heap[0]; this was for when returning the value
+    if(size>0){
     if (heap[1].distance > heap[2].distance) {
         heap[0] = heap[1];
         for (int i = 1; i < size;) {
@@ -129,6 +131,8 @@ void MaxHeap::MaxPop() {
             }
         }
     }
+    }
+    size--;
 }
 
 Accident MaxHeap::MaxTop() {
