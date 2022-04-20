@@ -48,7 +48,7 @@
   </head>
   <body>
     <h1 id="title" onclick="promptInput()">Pick a point to view nearby accidents</h1>
-    <div id="info" title="Rigth click on the map to find accidents around that point. You can also click the title to specify a longitude and latitude.">&#128712;</div>
+    <div id="info" onclick="alert('Right click on the map to find accidents around that point. You can also click the title to specify a longitude and latitude.')">&#128712;</div>
     <input type="number" id="numOfValues" value=1000 min=1 max=2845342>
     <div id="map"></div>
 
@@ -141,9 +141,12 @@
           }
         }
 
+
         // Add heatmap layer to map
-        heatmap = new google.maps.visualization.HeatmapLayer({
-          data: heatmapData
+	heatmap = new google.maps.visualization.HeatmapLayer({
+          data: heatmapData,
+	  radius: 12,
+	  opacity: 1
         });
         heatmap.setMap(map);
 
